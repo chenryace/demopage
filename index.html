@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>自定义换算器</title>
+    <style>
+        body {
+            background-color: black; /* 黑色背景 */
+            color: lightgray; /* 浅灰色字体 */
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h2 {
+            color: white; /* 白色标题 */
+            font-size: 100px; /* 增大标题字体大小 */
+            margin-bottom: 50px; /* 增加标题和输入项之间的距离 */
+        }
+        .input-field {
+            margin: 20px 0; /* 增加输入项和输出项之间的距离 */
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .input-field div {
+            margin: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .input-field label {
+            margin-right: 10px;
+            font-size: 20px;
+            font-weight: bold; /* 加粗输入框中的文字 */
+        }
+        .input-field input {
+            background-color: #FFA500; /* 偏橙的黄色输入框 */
+            color: black; /* 黑色输入文字 */
+            font-size: 25px;
+            font-weight: bold; /* 加粗输入框中的文字 */
+        }
+        .error {
+            color: red;
+        }
+        button {
+            margin: 10px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 25px; /* 增大计算按钮字体大小 */
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            color: white; /* 白色表格文字 */
+            font-size: 16px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .cost {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>自定义换算器</h2>
+
+    <div class="input-field">
+        <div>
+            <label for="students">学生人数 :</label>
+            <input id="students" type="number" placeholder="输入学生人数">
+        </div>
+        <div>
+            <label for="tuition">学费:</label>
+            <input id="tuition" type="number" placeholder="输入学费">
+        </div>
+        <div>
+            <label for="institutionShare">机构分成比例 :</label>
+            <input id="institutionShare" type="number" placeholder="应该是7">
+        </div>
+        <div>
+            <label for="cooperationFee">校企合作占分成比例 :</label>
+            <input id="cooperationFee" type="number" placeholder="一般是3">
+        </div>
+        <div>
+            <label for="deskShare">我的份额:</label>
+            <input id="deskShare" type="number" placeholder="我的份额">
+        </div>
+        <div>
+            <label for="socialSecurity">社保单价 :</label>
+            <input id="socialSecurity" type="number" placeholder="最少1500">
+        </div>
+        <div>
+            <label for="employmentRate">入职比例 :</label>
+            <input id="employmentRate" type="number" placeholder="输入入职比例">
+        </div>
+    </div>
+
+    <button onclick="calculate()">计算</button>
+
+    <table>
+        <tr>
+            <th>项目</th>
+            <th>结果</th>
+        </tr>
+        <tr>
+            <td>总学费</td>
+            <td id="annualIncome"></td>
+        </tr>
+        <tr>
+            <td>企业分成</td>
+            <td id="shareIncome"></td>
+        </tr>
+        <tr>
+            <td>企业实际所得</td>
+            <td id="actualIncome"></td>
+        </tr>
+        <tr>
+            <td>企业3年实际所得</td>
+            <td id="threeYearIncome"></td>
+        </tr>
+        <tr>
+            <td class="cost">校企合作支出（0.7返还）</td>
+            <td class="cost" id="cooperationCost"></td>
+        </tr>
+        <tr>
+            <td>带头人分成</td>
+            <td id="leaderShare"></td>
+        </tr>
+        <tr>
+            <td>带头人实际所得</td>
+            <td id="leaderIncome"></td>
+        </tr>
+        <tr>
+            <td>我的分成</td>
+            <td id="serviceFee"></td>
+        </tr>
+        <tr>
+            <td class="cost">试用期社保成本</td>
+            <td class="cost" id="socialSecurityCost"></td>
+        </tr>
+    </table>
+
+    <p id="error" class="error"></p>
+
+    <script>
+        function calculate() {
+            var students = document.getElementById('students').value;
+            var tuition = document.getElementById('tuition').value;
+            var institutionShare = document.getElementById('institutionShare').value / 10; // 转换为百分数
+            var cooperationFee = document.getElementById('cooperationFee').value / 10; // 转换为百分数
+            var deskShare = document.getElementById('deskShare').value / 10; // 转换为百分数
+            var socialSecurity = document.getElementById('socialSecurity').value;
+            var employmentRate = document.getElementById('employmentRate').value / 10; // 转换为百分数
+
+            // 清除之前的错误信息
+            document.getElementById('error').innerHTML = '';
+
+            try {
+                // 计算结果
+                var annualIncome = students * tuition; // 学费年收入 = 学生人数 * 学费
+                var shareIncome = annualIncome * institutionShare; // 企业分成 = 学费年收入 * 机构分成比例
+                var actualIncome = shareIncome * (1 - cooperationFee); // 企业实际所得 = 企业分成 * (1 - 校企合作费输出比例)
+                var cooperationCost = shareIncome - actualIncome; // 校企合作支出 = 企业分成 - 企业实际所得
+                var threeYearIncome = actualIncome * 3; // 企业3年实际所得 = 企业实际所得 * 3
+                var leaderShare = cooperationCost * 0.7; // 专业带头人分成 = 企业分成 * 0.7 * 校企合作费输出比例
+                var leaderIncome = (1 - deskShare) * leaderShare; // 专业带头人实际所得 = (1 - 桌底分成) * 专业带头人分成
+                var serviceFee = leaderShare * deskShare; // 个人分成 = 专业带头人分成 * 桌底分成
+                var socialSecurityCost = students * employmentRate * socialSecurity; // 社保缴交成本 = 学生人数 * 入职比例 * 社保单价
+
+                document.getElementById('annualIncome').innerHTML = annualIncome.toLocaleString('zh-CN');
+                document.getElementById('shareIncome').innerHTML = shareIncome.toLocaleString('zh-CN');
+                document.getElementById('actualIncome').innerHTML = actualIncome.toLocaleString('zh-CN');
+                document.getElementById('cooperationCost').innerHTML = "-" + cooperationCost.toLocaleString('zh-CN');
+                document.getElementById('threeYearIncome').innerHTML = threeYearIncome.toLocaleString('zh-CN');
+                document.getElementById('leaderShare').innerHTML = leaderShare.toLocaleString('zh-CN');
+                document.getElementById('leaderIncome').innerHTML = leaderIncome.toLocaleString('zh-CN');
+                document.getElementById('serviceFee').innerHTML = serviceFee.toLocaleString('zh-CN');
+                document.getElementById('socialSecurityCost').innerHTML = "-" + socialSecurityCost.toLocaleString('zh-CN');
+            } catch (error) {
+                document.getElementById('error').innerHTML = error.message;
+            }
+        }
+    </script>
+</body>
+</html>
